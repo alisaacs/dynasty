@@ -16,7 +16,24 @@ class tile:
 class world_map:
     def __init__(self, map_size_x, map_size_y):
         self.map_size = (map_size_x,map_size_y)
-        self.map_array = [tile(x,y,(x*map_size_x + y)) for y in range(map_size_y) for x in range(map_size_x)]     
+        self.map_array = [tile(x,y,(x*map_size_y + y)) for y in range(map_size_y) for x in range(map_size_x)]     
+        self.create_heightmap()
+
+    def create_heightmap(self):
+        layer_1 = noise("perlin",256,self.map_size)
+        layer_2 = noise("perlin",128,self.map_size)
+        layer_3 = noise("perlin",64,self.map_size)
+        layer_4 = noise("perlin",32,self.map_size)
+        layer_5 = noise("perlin",16,self.map_size)
+        layer_6 = noise("perlin",8,self.map_size)
+        for cell in self.map_array:
+                x = cell.x
+                y = cell.y
+                val = layer_1.perlin(x,y) + 0.5*layer_2.perlin(x,y) + 0.25*layer_3.perlin(x,y) + 0.125*layer_4.perlin(x,y) + 0.0625*layer_5.perlin(x,y) + 0.03125*layer_6.perlin(x,y)
+                val = val/(1+0.5+0.25+0.125+0.0625+0.03125)
+                cell.set_height((val+1)*5000)
+	
+
 
     def find_x_y(self,tile_id):
         x = math.floor(tile_id/self.map_size[0])
@@ -24,7 +41,7 @@ class world_map:
         return [x,y]
 
     def calc_tile_id(self,x,y):
-        return x*self.map_size[0] + y
+        return x*self.map_size[1] + y
 
     #Functions to move around
     
@@ -127,52 +144,32 @@ class noise:
         average = self.lerp(self.lerp(a0,a2,u),self.lerp(a1,a3,u),v)
         return average
 
-import pygame
-import pygame.gfxdraw
-map_size = (512,256)
-layer_1 = noise("perlin",256,map_size)
-layer_2 = noise("perlin",128,map_size)
-layer_3 = noise("perlin",64,map_size)
-layer_4 = noise("perlin",32,map_size)
-layer_5 = noise("perlin",16,map_size)
-layer_6 = noise("perlin",8,map_size)
-layer_7 = noise("perlin",4,map_size)
-#SEA_HEIGHT = 0.1
-#SEA_DEEP = (3,3,159)
-#SEA_SHALLOW = (14,92,144)
-#LAND_LOW = (25,119,63)
-#LAND_HIGH = (31,104,14)
+world = world_map(512,256)
 
-
-
-screen = pygame.display.set_mode(map_size)
-for x in range(map_size[0]):
-    for y in range(map_size[1]):
-        val = layer_1.perlin(x,y) + 0.5*layer_2.perlin(x,y) + 0.25*layer_3.perlin(x,y) + 0.125*layer_4.perlin(x,y) + 0.0625*layer_5.perlin(x,y) + 0.03125*layer_6.perlin(x,y) + 0.015625*layer_7.perlin(x,y)
-        val = val/(1+0.5+0.25+0.125+0.0625+0.03125+0.015625)
-        #if val < SEA_HEIGHT:
-            
-        #else:
-
-
-        if val < -0.6:
+screen = pygame.display.set_mode(world.map_size)
+for x in range(world.map_size[0]):
+    for y in range(world.map_size[1]):
+        val = world.map_array[world.calc_tile_id(x,y)].height
+        if val < 2000:
             colour = (3,3,159)
-        elif val < -0.4:
+        elif val < 3000:
             colour = (7,36,154)
-        elif val < -0.2:
+        elif val < 4000:
             colour = (10,66,149)
-        elif val < 0:
+        elif val < 5000:
             colour = (14,92,144)
-        elif val < 0.1:
+        elif val < 6000:
             colour = (16,114,139)
-        elif val < 0.3:
+        elif val < 7000:
             colour = (25,119,63)
-        elif val < 0.5:
+        elif val < 8000:
             colour = (27,114,44)
-        elif val < 0.7:
+        elif val < 9000:
             colour = (29,109,29)
         else:
             colour = (31,104,14)
+       # print(x,y,world.calc_tile_id(x,y),val,colour,sep=" ")
+
         pygame.gfxdraw.pixel(screen,x,y,colour)
 
 done = False

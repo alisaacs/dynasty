@@ -16,7 +16,7 @@ class tile:
 class world_map:
     def __init__(self, map_size_x, map_size_y):
         self.map_size = (map_size_x,map_size_y)
-        self.map_array = [tile(x,y,(x*map_size_y + y)) for y in range(map_size_y) for x in range(map_size_x)]     
+        self.map_array = [tile(x,y,(x*map_size_y + y)) for x in range(map_size_x) for y in range(map_size_y)]     
         self.create_heightmap()
 
     def create_heightmap(self):
@@ -150,21 +150,21 @@ screen = pygame.display.set_mode(world.map_size)
 for x in range(world.map_size[0]):
     for y in range(world.map_size[1]):
         val = world.map_array[world.calc_tile_id(x,y)].height
-        if val < 2000:
+        if val < 1500:
             colour = (3,3,159)
-        elif val < 3000:
+        elif val < 2500:
             colour = (7,36,154)
-        elif val < 4000:
+        elif val < 3500:
             colour = (10,66,149)
-        elif val < 5000:
+        elif val < 4500:
             colour = (14,92,144)
-        elif val < 6000:
+        elif val < 5500:
             colour = (16,114,139)
-        elif val < 7000:
+        elif val < 6500:
             colour = (25,119,63)
-        elif val < 8000:
+        elif val < 7500:
             colour = (27,114,44)
-        elif val < 9000:
+        elif val < 8500:
             colour = (29,109,29)
         else:
             colour = (31,104,14)
